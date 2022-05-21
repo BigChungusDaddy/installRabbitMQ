@@ -1,2 +1,0 @@
-# installRabbitMQ
-Install rabbit MQ
