@@ -1,7 +1,7 @@
 import pika
 import sys
 
-connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+connection = pika.BlockingConnection(pika.ConnectionParameters(host='192.168.1.1'))
 channel = connection.channel()
 channel.queue_declare(queue='task_queue', durable = True)
 
