@@ -1,7 +1,8 @@
 import pika
 import sys
 
-connection = pika.BlockingConnection(pika.ConnectionParameters(host='192.168.1.1'))
+credential = pika.PlainCredentials('node2', 'thisisnode2')
+connection = pika.BlockingConnection(pika.ConnectionParameters(host='192.168.1.1',credentials=credential))
 channel = connection.channel()
 channel.queue_declare(queue='task_queue', durable = True)
 
