@@ -39,8 +39,6 @@ sudo apt-get install -y erlang-base \
 ## Install rabbitmq-server and its dependencies
 sudo apt-get install rabbitmq-server -y --fix-missing
 
+# Install dependents
 sudo apt-get install python3-pip -y
 sudo python3 -m pip install pika
-cd /local
-git clone https://github.com/BigChungusDaddy/installRabbitMQ
-cd ./installRabbitMQ
