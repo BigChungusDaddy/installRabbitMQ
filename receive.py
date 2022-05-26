@@ -1,22 +1,33 @@
 import pika
-import time
+import sys
 
-connection = pika.BlockingConnection(
-    pika.ConnectionParameters(host='localhost'))
+credential = pika.PlainCredentials('client', 'thisisaclient')
+connection = pika.BlockingConnection(pika.ConnectionParameters(host='192.168.1.1',credentials=credential))
 channel = connection.channel()
 
-channel.queue_declare(queue='task_queue', durable=True)
-print(' [*] Waiting for messages. To exit press CTRL+C')
+channel.exchange_declare(exchange='direct_logs', exchange_type='direct')
+
+result = channel.queue_declare(queue='', exclusive=True)
+queue_name = result.method.queue
+
+# Note severities can only be info, warning, and error.
+severities = sys.argv[1:]
+if not severities:
+    sys.stderr.write("Usage: %s [info] [warning] [error]\n" % sys.argv[0])
+    sys.exit(1)
+
+for severity in severities:
+    channel.queue_bind(
+        exchange='direct_logs', queue=queue_name, routing_key=severity)
+
+print(' [*] Waiting for logs. To exit press CTRL+C')
 
 
 def callback(ch, method, properties, body):
-    print(" [x] Received %r" % body.decode())
-    time.sleep(body.count(b'.'))
-    print(" [x] Done")
-    ch.basic_ack(delivery_tag=method.delivery_tag)
+    print(" [x] %r:%r" % (method.routing_key, body))
 
 
-channel.basic_qos(prefetch_count=1)
-channel.basic_consume(queue='task_queue', on_message_callback=callback)
+channel.basic_consume(
+    queue=queue_name, on_message_callback=callback, auto_ack=True)
 
 channel.start_consuming()
